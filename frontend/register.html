@@ -1,0 +1,48 @@
+<!-- /frontend/register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🧾 Register</title>
+</head>
+<body>
+  <nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="login.html">🔐 Login</a>
+    <a href="register.html">🧾 Register</a>
+    <a href="cart.html">🛒 Cart <span id="cart-count">0</span></a>
+    <a href="orders.html">📦 My Orders</a>
+
+  </nav>
+
+  <h2>🧾 Register</h2>
+  <input id="name" placeholder="Name" /><br />
+  <input id="email" placeholder="Email" /><br />
+  <input id="password" type="password" placeholder="Password" /><br />
+  <button onclick="register()">Register</button>
+
+  <script>
+    async function register() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify(data));
+        alert("✅ Registered successfully!");
+        window.location.href = "index.html";
+      } else {
+        alert("❌ " + data.message);
+      }
+    }
+  </script>
+</body>
+</html>

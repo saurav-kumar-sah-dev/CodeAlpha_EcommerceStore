@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔐 Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">🏠 Home</a>
+    <a href="login.html">🔐 Login</a>
+    <a href="register.html">🧾 Register</a>
+    <a href="cart.html">🛒 Cart <span id="cart-count">0</span></a>
+    <a href="orders.html">📦 My Orders</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <h1>🔐 Login</h1>
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("login-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch("/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("token", data.token); // ✅ Store token
+          localStorage.setItem("user", JSON.stringify(data)); // Optional user info
+          alert("✅ Login successful!");
+          window.location.href = "index.html";
+        } else {
+          document.getElementById("message").innerText = "❌ " + data.message;
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        document.getElementById("message").innerText = "❌ Login failed.";
+      }
+    });
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById("cart-count").innerText = count;
+    }
+
+    function logout() {
+      localStorage.clear();
+      alert("✅ Logged out.");
+      window.location.href = "login.html";
+    }
+
+    updateCartCount();
+  </script>
+</body>
+</html>

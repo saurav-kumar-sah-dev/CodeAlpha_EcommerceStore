@@ -1,0 +1,79 @@
+<!-- ✅ /frontend/orders.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>📦 My Orders</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">🏠 Home</a>
+    <a href="login.html">🔐 Login</a>
+    <a href="register.html">🧾 Register</a>
+    <a href="cart.html">🛒 Cart <span id="cart-count">0</span></a>
+    <a href="orders.html">📦 My Orders</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <h1>📦 My Orders</h1>
+
+  <!-- ✅ THIS MUST EXIST -->
+  <div id="orders-list">Loading...</div>
+
+  <script>
+    function logout() {
+      localStorage.clear();
+      alert("✅ Logged out.");
+      window.location.href = "login.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchOrders(); // ✅ Only run after DOM is loaded
+    });
+
+    async function fetchOrders() {
+      const token = localStorage.getItem("token");
+      const ordersList = document.getElementById("orders-list");
+
+      if (!ordersList) return console.error("❌ orders-list element not found.");
+
+      if (!token) {
+        ordersList.innerHTML = "<p>⚠️ Please login to view orders.</p>";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/orders/my", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const orders = await res.json();
+        if (!res.ok) throw new Error(orders.message || "Failed to fetch");
+
+        if (orders.length === 0) {
+          ordersList.innerHTML = "<p>No orders yet.</p>";
+          return;
+        }
+
+        ordersList.innerHTML = orders
+          .map(order => `
+            <div class="order">
+              <p><b>Order Date:</b> ${new Date(order.createdAt).toLocaleString()}</p>
+              <ul>
+                ${order.products.map(item => `
+                  <li>${item.productId?.name || "Unknown"} - Qty: ${item.quantity}</li>
+                `).join("")}
+              </ul>
+            </div>
+          `).join("");
+      } catch (err) {
+        console.error(err);
+        ordersList.innerHTML = `<p>❌ ${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

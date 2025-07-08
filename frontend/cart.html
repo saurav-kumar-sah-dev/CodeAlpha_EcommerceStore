@@ -1,0 +1,99 @@
+<!-- /frontend/cart.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">🏠 Home</a>
+    <a href="login.html">🔐 Login</a>
+    <a href="register.html">🧾 Register</a>
+    <a href="cart.html">🛒 Cart <span id="cart-count">0</span></a>
+    <a href="orders.html">📦 My Orders</a>
+
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <h1>🛒 Your Cart</h1>
+  <div id="cart-items"></div>
+  <p id="total-price"></p>
+  
+  <!-- ✅ Place Order Button -->
+  <button id="place-order">✅ Place Order</button>
+
+  <p id="message"></p>
+
+  <script>
+    const cartContainer = document.getElementById("cart-items");
+    const totalPriceDisplay = document.getElementById("total-price");
+    const message = document.getElementById("message");
+    const placeOrderBtn = document.getElementById("place-order");
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let total = 0;
+
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+      placeOrderBtn.style.display = "none";  // ❌ hides button if cart is empty
+    } else {
+      cart.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML = `<p><b>${item.name}</b> (x${item.quantity}) – ₹${item.price}</p>`;
+        cartContainer.appendChild(div);
+        total += item.price * item.quantity;
+      });
+      totalPriceDisplay.innerText = `Total: ₹${total}`;
+      placeOrderBtn.style.display = "inline-block"; // ✅ shows button if cart exists
+    }
+
+    placeOrderBtn.addEventListener("click", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("⚠️ Please login to place an order.");
+        return window.location.href = "login.html";
+      }
+      try {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            products: cart.map(i => ({ productId: i._id, quantity: i.quantity }))
+          })
+        });
+        const result = await res.json();
+        if (res.ok) {
+          message.innerText = result.message;
+          localStorage.removeItem("cart");
+          updateCartCount();
+          setTimeout(() => window.location.href = "index.html", 1500);
+        } else {
+          message.innerText = result.message || "❌ Failed to place order.";
+        }
+      } catch (err) {
+        console.error("❌ Order error:", err);
+        message.innerText = "❌ Error placing order.";
+      }
+    });
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById("cart-count").innerText = count;
+    }
+
+    function logout() {
+      localStorage.clear();
+      alert("✅ Logged out.");
+      window.location.href = "login.html";
+    }
+
+    updateCartCount();
+  </script>
+</body>
+</html>
