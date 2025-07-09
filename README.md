@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🛒 CodeAlpha_EcommerceStore
 
 A fully functional E-Commerce Web Application built using the **MERN stack** (MongoDB, Express.js, React/Vanilla JS, Node.js). This project was developed as part of my internship at **CodeAlpha**, aimed at demonstrating real-world web development skills.
