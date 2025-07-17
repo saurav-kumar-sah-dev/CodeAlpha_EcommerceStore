@@ -27,9 +27,6 @@ A fully functional E-Commerce Web Application built using the **MERN stack** (Mo
 
 
 
-## 📦 Folder Structure
-
-
 # CodeAlpha_EcommerceStore
 Full-stack E-Commerce Web App built with the MERN stack as part of my internship at CodeAlpha. Features include user authentication, cart functionality, order management, and a clean UI
  d4ed7dddde10951def94a2b463de14dcdc2cd76f
